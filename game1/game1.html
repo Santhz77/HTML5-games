@@ -1,0 +1,243 @@
+<html>
+<head>
+<title>Santy's first HTML game</title>
+
+<script>
+var canvas;
+var canvasContext;
+var ballX = 50;
+var ballY = 50;
+var ballspeedX = 10;
+var ballspeedY = 10;
+
+var paddle_Y = 210;
+var paddle2_Y = 210;
+
+var player_score = 0;
+var computer_score = 0;
+
+var winscreen = false;
+
+const PADDLE_THICKNESS = 10
+const PADDLE_HEIGHT = 100
+const WINNING_SCORE = 7;
+
+window.onload = function () {
+  console.log("Program loaded")
+  canvas = document.getElementById('canvas1');
+  canvasContext = canvas.getContext('2d');
+
+  var framesPerSec = 30
+  setInterval (callBoth , 1000/framesPerSec);
+
+
+  canvas.addEventListener('mousemove',function(evnt){
+    var mousePos = mousePosition(evnt);
+    paddle_Y = mousePos.y - (PADDLE_HEIGHT/2);
+  });
+
+  canvas.addEventListener('mousedown',mouseclick);
+}
+
+
+
+function mouseclick(evnt){
+  if(winscreen)
+  {
+    player_score = 0;
+    computer_score = 0
+    winscreen = false;
+  }
+}
+
+
+function mousePosition(evnt)
+{
+  var rect = canvas.getBoundingClientRect();
+  var root = document.documentElement;
+  var mouseX = evnt.clientX - rect.left - root.scrollLeft;
+  var mouseY = evnt.clientY - rect.top - root.scrollTop;
+  return {
+    x:mouseX,
+    y:mouseY
+  }
+}
+
+function ballReset(){
+  if (player_score >= WINNING_SCORE || computer_score >= WINNING_SCORE)
+  {
+    winscreen = true;
+  }
+  ballspeedX = -ballspeedX;
+  ballX = canvas.width / 2;
+  ballY = canvas.height / 2;
+}
+
+
+
+function callBoth()
+{
+  moveball();
+  drawEverything();
+}
+
+
+//This is for the control of the right paddle to be controlled by the program
+function computerMovement()
+{
+  var paddle2_center = paddle2_Y + (PADDLE_HEIGHT / 2);
+   if(paddle2_center < ballY-35)
+   {
+     paddle2_Y += 10;
+   }
+   else if(paddle2_center > ballY + 35) {
+     paddle2_Y -= 10;
+   }
+}
+
+
+function moveball()
+{
+  if (winscreen)
+  {
+    return;
+  }
+
+  computerMovement();
+
+  ballX = ballX  + ballspeedX;
+  ballY = ballY  + ballspeedY;
+
+  //for the top
+  if (ballY > canvas.height)
+  {
+    ballspeedY = -ballspeedY;
+  }
+
+  //for the bottom
+  if (ballY < 0)
+  {
+    ballspeedY = -ballspeedY;
+  }
+
+  // If its more than the canvas width
+  if (ballX > canvas.width)
+  {
+    if(ballY > paddle2_Y && ballY < (paddle2_Y+PADDLE_HEIGHT ))
+    {
+      ballspeedX = -ballspeedX;
+      var deltaY = ballY - (paddle2_Y + PADDLE_HEIGHT/2);
+      ballspeedY = deltaY * 0.35;
+    }
+    else {
+
+      player_score++;
+      ballReset();
+    }
+  }
+
+  // if its less
+  if (ballX < 0)
+  {
+    if(ballY > paddle_Y && ballY < (paddle_Y+PADDLE_HEIGHT ))
+    {
+      ballspeedX = -ballspeedX;
+
+      var deltaY = ballY - (paddle_Y + PADDLE_HEIGHT/2);
+      ballspeedY = deltaY * 0.35;
+    }
+    else {
+      computer_score++;
+      ballReset();
+    }
+  }
+}
+
+
+//To draw on the canvas
+function drawEverything()
+{
+
+  colorRect(0,0,canvas.width,canvas.height,'black');
+
+  if (winscreen)
+  {
+    canvasContext.font="50px Arial";
+    canvasContext.fillStyle = 'YELLOW';
+    canvasContext.fillText("Game OVER!!!", 300,100);
+
+
+    if(player_score >= WINNING_SCORE)
+    {
+      canvasContext.font="25px Sans";
+      canvasContext.fillStyle = 'white';
+      canvasContext.fillText("PLAYER WON", 350,250);
+    }
+    if(computer_score >= WINNING_SCORE)
+    {
+      canvasContext.font="25px Sans";
+      canvasContext.fillStyle = 'white';
+      canvasContext.fillText("COMPUTER WON", 350,250);
+    }
+
+    canvasContext.font="75px Arial";
+    canvasContext.fillStyle = 'red';
+    canvasContext.fillText("Click to continue", 200,400);
+
+    canvasContext.font="15px Arial";
+    canvasContext.fillStyle = 'white';
+    canvasContext.fillText("Game by Santhosh", 450,550);
+
+    return
+  }
+
+  //To draw the net
+  for(var i=0; i<canvas.height; i+=40)
+  {
+    colorRect(canvas.width/2-1,i,2,20,'white');
+  }
+
+  colorRect(0,paddle_Y,PADDLE_THICKNESS,PADDLE_HEIGHT,'white');
+  colorRect(canvas.width -PADDLE_THICKNESS,paddle2_Y,PADDLE_THICKNESS,PADDLE_HEIGHT,'white');
+
+  colorCircle(ballX,ballY,10,'white');
+
+  canvasContext.font="20px Sans";
+  canvasContext.fillText("Player score", 60,20);
+  canvasContext.fillText(player_score, 110,50);
+
+  canvasContext.fillText("Computer score", canvas.width-210,20);
+  canvasContext.fillText(computer_score, canvas.width-130,50);
+
+
+}
+
+
+function colorCircle(centerX,centerY,radius,color)
+{
+  canvasContext.fillStyle = color;
+  canvasContext.beginPath();
+  canvasContext.arc(centerX,centerY,radius,0,Math.PI *2, true);
+  canvasContext.fill();
+
+}
+
+function colorRect(leftX,topY,width, height, color)
+{
+  canvasContext.fillStyle = color;
+  canvasContext.fillRect(leftX,topY,width,height);
+}
+
+</script>
+</head>
+<body>
+<canvas id = "canvas1" width="900" height="600"> </canvas>
+<!-- <script src="game1.js"> </script> -->
+
+</body>
+
+
+
+
+
+</html>
