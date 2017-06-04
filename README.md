@@ -4,5 +4,10 @@ This is the folder which consists of the HTML5 games developed as a hobby and fo
 
 Feel free to use it and edit it and let me know if there is away to better my work.
 
-Thanks,
-Santhosh
+
+
+Contents 
+
+game1 : click on the HTML file and it opens the game in browser.
+
+game2 : coming soon!
